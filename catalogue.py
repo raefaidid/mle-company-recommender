@@ -30,9 +30,9 @@ class Catalogue:
             sql.SQL(
                 """
                 INSERT INTO {}.companies (
-                    registration_number, company_name, industry, state, embedding
+                    registration_number, company_name, industry, state, status, embedding
                 )
-                VALUES (%s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s)
                 """
             ).format(sql.Identifier(self._schema)),
             (
@@ -40,6 +40,7 @@ class Catalogue:
                 company.company_name,
                 company.industry,
                 company.state,
+                company.status,
                 _vector(vector),
             ),
         )
@@ -51,6 +52,7 @@ class Catalogue:
                 SELECT registration_number, company_name, industry, state
                 FROM {}.companies
                 WHERE registration_number <> %s
+                  AND status = 'active'
                 ORDER BY embedding <=> (
                     SELECT embedding
                     FROM {}.companies
@@ -74,6 +76,7 @@ class Catalogue:
                     company_name text,
                     industry text,
                     state text,
+                    status text NOT NULL,
                     embedding vector(2) NOT NULL
                 )
                 """
