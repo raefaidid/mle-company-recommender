@@ -15,11 +15,11 @@
 
 ## Next
 
-Rows 09–12 have no ticket file yet. Add the file when the ticket is picked up.
+Rows 10–12 have no ticket file yet. Add the file when the ticket is picked up.
 
 | # | Ticket | Seam | Status |
 |---|--------|------|--------|
-| 09 | Quarantine permanent junk instead of retrying it | consumer | Backlog |
+| 09 | [Permanent junk is quarantined and acknowledged](consumer/09-permanent-junk-is-quarantined-and-acknowledged.md) | consumer | Next |
 | 10 | Industry fallback when `natureOfBusiness` is empty | intake | Backlog |
 | 11 | Equal-timestamp tie-break: strike-off first, then hash | catalogue | Backlog |
 | 12 | `DESIGN.md` and README run instructions | docs | Backlog |
