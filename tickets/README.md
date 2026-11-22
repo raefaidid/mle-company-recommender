@@ -14,11 +14,11 @@
 
 ## Next
 
-Rows here have no ticket file yet. Add the file when the ticket is picked up.
+Rows 09–12 have no ticket file yet. Add the file when the ticket is picked up.
 
 | # | Ticket | Seam | Status |
 |---|--------|------|--------|
-| 08 | Consumer: one message, interpret, embed, upsert, ack | consumer | Next |
+| 08 | [One message is stored and acknowledged](consumer/08-one-message-is-stored-and-acknowledged.md) | consumer | Next |
 | 09 | Quarantine permanent junk instead of retrying it | consumer | Backlog |
 | 10 | Industry fallback when `natureOfBusiness` is empty | intake | Backlog |
 | 11 | Equal-timestamp tie-break: strike-off first, then hash | catalogue | Backlog |
