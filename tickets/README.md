@@ -1,11 +1,5 @@
 # Tickets
 
-A ticket is **Done** when its scenario has a green test on `main`. Status lives
-here, not in the ticket files.
-
-Update the row in the same commit that makes the test pass, then merge. If a
-`Done` row and a failing test ever disagree, the test wins and the row is fixed.
-
 ## MVP
 
 | # | Ticket | Seam | Status | Test |
@@ -32,10 +26,3 @@ Rows here have no ticket file yet. Add the file when the ticket is picked up.
 
 Deferred, not ticketed yet: batch embedding, HNSW tuning, Malay evaluation,
 state normalisation.
-
-## Workflow
-
-1. Add the Gherkin file under the seam folder and a row here with status `Next`.
-2. Branch from `main`, write the failing test, then the code.
-3. In the commit that makes the test pass, flip the row to `Done` and name the test.
-4. Merge back to `main`.
