@@ -13,8 +13,15 @@ class Company:
     status: str
 
 
-def interpret(raw: bytes) -> Company:
+@dataclass(frozen=True)
+class Rejection:
+    reason: str
+
+
+def interpret(raw: bytes) -> Company | Rejection:
     message = json.loads(raw)
+    if message is None:
+        return Rejection("body was null")
     data = message["data"]
     source_updated_at = datetime.fromisoformat(message["updatedAt"]).astimezone(timezone.utc)
     return Company(

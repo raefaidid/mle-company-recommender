@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from intake import Company, interpret
+from intake import Company, Rejection, interpret
 
 UPSERT = (
     b'{"type": "company-upserted", "registrationNumber": "SYN-001777", '
@@ -21,3 +21,10 @@ def test_company_upsert_becomes_a_company_record():
     assert result.state == "Negeri Sembilan"
     assert result.source_updated_at == datetime(2026, 8, 14, 1, 0, tzinfo=timezone.utc)
     assert result.status == "active"
+
+
+def test_null_message_is_rejected_without_raising():
+    result = interpret(b"null")
+
+    assert isinstance(result, Rejection)
+    assert "null" in result.reason.lower()
