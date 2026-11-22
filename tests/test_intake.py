@@ -43,3 +43,21 @@ def test_timestamp_with_no_offset_is_read_as_malaysia_time():
 
     assert isinstance(result, Company)
     assert result.source_updated_at == datetime(2026, 8, 14, 1, 6, 19, tzinfo=timezone.utc)
+
+
+def test_strike_off_names_the_company_and_nothing_else():
+    raw = (
+        b'{"type": "company-struck-off", "registrationNumber": "SYN-001748", '
+        b'"updatedAt": "2026-08-14T16:00:33+08:00"}'
+    )
+
+    result = interpret(raw)
+
+    assert isinstance(result, Company)
+    assert result.registration_number == "SYN-001748"
+    assert result.status == "struck_off"
+    assert result.company_name is None
+    assert result.industry is None
+    assert result.state is None
+    assert result.nature_of_business is None
+    assert result.source_updated_at == datetime(2026, 8, 14, 8, 0, 33, tzinfo=timezone.utc)
