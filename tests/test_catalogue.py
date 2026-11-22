@@ -1,12 +1,7 @@
 from datetime import datetime, timezone
 
-import pytest
-from psycopg import connect
-
 from catalogue import Catalogue
 from intake import Company
-
-DSN = "postgresql://postgres:postgres@localhost:5432/companies"
 
 
 def _company(
@@ -24,16 +19,6 @@ def _company(
         source_updated_at=datetime(2026, 8, 14, 1, 0, tzinfo=timezone.utc),
         status=status,
     )
-
-
-@pytest.fixture
-def catalogue():
-    schema = "test_catalogue"
-    stored = Catalogue(DSN, schema=schema)
-    yield stored
-    stored.close()
-    with connect(DSN, autocommit=True) as conn:
-        conn.execute(f"DROP SCHEMA IF EXISTS {schema} CASCADE")
 
 
 def test_similar_companies_are_the_nearest_stored_cards(catalogue: Catalogue):
