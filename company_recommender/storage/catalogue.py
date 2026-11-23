@@ -4,7 +4,7 @@ from datetime import datetime
 import psycopg
 from psycopg import sql
 
-from intake import Company
+from company_recommender.intake.models import Company
 
 
 @dataclass(frozen=True)

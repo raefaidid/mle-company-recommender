@@ -2,9 +2,9 @@ from datetime import datetime, timezone
 
 from fastapi.testclient import TestClient
 
-from catalogue import Catalogue
-from intake import Company
-from panel import create_app
+from company_recommender.intake.models import Company
+from company_recommender.panel.app import create_app
+from company_recommender.storage.catalogue import Catalogue
 
 
 def _vector(*values: float) -> list[float]:

@@ -1,19 +1,20 @@
 """Consume company-events and store each message, one at a time."""
 
 import asyncio
-import os
 from typing import Protocol
 
 import aio_pika
 
-from catalogue import Catalogue
-from consumer import Ack, Consumer, Retry
-from embedder import FastEmbedder
-from quarantine import Quarantine
-
-QUEUE = "company-events"
-DEFAULT_DSN = "postgresql://postgres:postgres@localhost:5432/companies"
-DEFAULT_URL = "amqp://guest:guest@localhost:5672/"
+from company_recommender.config import (
+    POSTGRES_DSN,
+    QUEUE,
+    RABBITMQ_URL,
+    RETRY_DELAY_SECONDS,
+)
+from company_recommender.consumer.handler import Ack, Consumer, Retry
+from company_recommender.embeddings.embedder import FastEmbedder
+from company_recommender.storage.catalogue import Catalogue
+from company_recommender.storage.quarantine import Quarantine
 
 
 class Message(Protocol):
@@ -51,10 +52,10 @@ async def consume(url: str, dsn: str, retry_delay: float = 1.0) -> None:
 
 
 def main() -> None:
-    url = os.environ.get("RABBITMQ_URL", DEFAULT_URL)
-    dsn = os.environ.get("POSTGRES_DSN", DEFAULT_DSN)
-    retry_delay = float(os.environ.get("RETRY_DELAY_SECONDS", "1"))
-    asyncio.run(consume(url, dsn, retry_delay))
+    try:
+        asyncio.run(consume(RABBITMQ_URL, POSTGRES_DSN, RETRY_DELAY_SECONDS))
+    except KeyboardInterrupt:
+        pass
 
 
 if __name__ == "__main__":

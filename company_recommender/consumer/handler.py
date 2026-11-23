@@ -1,10 +1,11 @@
 import hashlib
 from dataclasses import dataclass
 
-from catalogue import Catalogue
-from embedder import FastEmbedder
-from intake import Rejection, interpret
-from quarantine import Quarantine
+from company_recommender.embeddings.embedder import FastEmbedder
+from company_recommender.intake.models import Rejection
+from company_recommender.intake.parser import interpret
+from company_recommender.storage.catalogue import Catalogue
+from company_recommender.storage.quarantine import Quarantine
 
 
 @dataclass(frozen=True)

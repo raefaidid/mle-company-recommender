@@ -1,7 +1,7 @@
 import pytest
 from psycopg import connect
 
-from catalogue import Catalogue
+from company_recommender.storage.catalogue import Catalogue
 
 DSN = "postgresql://postgres:postgres@localhost:5432/companies"
 

@@ -4,7 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from intake import Company, Rejection, _source_time, interpret
+from company_recommender.intake.models import Company, Rejection
+from company_recommender.intake.parser import _source_time, interpret
 
 FEED = Path(__file__).resolve().parent.parent / "data" / "feed.jsonl"
 

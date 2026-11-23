@@ -1,4 +1,4 @@
-from embedder import FastEmbedder
+from company_recommender.embeddings.embedder import FastEmbedder
 
 MALAY = "Pengeluaran sarung tangan getah untuk eksport"
 ENGLISH = "Production of rubber gloves for export"

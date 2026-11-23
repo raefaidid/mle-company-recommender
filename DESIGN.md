@@ -42,7 +42,7 @@ The model is
 `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`: 384 dimensions,
 CPU-only, through `fastembed`. The embedding column is fixed at `vector(384)`.
 
-The text to embed is chosen in `intake.py`:
+The text to embed is chosen in `company_recommender/intake/parser.py`:
 
 - `natureOfBusiness` when it is a non-empty string;
 - otherwise `"{industry} in {state}"`, for example `"Retail in Kedah"`;

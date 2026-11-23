@@ -183,6 +183,20 @@ Environment variables: `POSTGRES_DSN` (default
 
 Add whatever else you need (`uv add` for libraries).
 
+## Project layout
+
+```
+company_recommender/
+├── config.py               # environment defaults
+├── intake/                 # event parsing, Company and Rejection
+├── storage/                # Postgres catalogue and quarantine
+├── embeddings/             # fastembed wrapper
+├── consumer/               # message handler and RabbitMQ worker
+└── panel/                  # FastAPI app and uvicorn entrypoint
+```
+
+`tests/` stays flat; `producer/` is the assessment's feed publisher.
+
 ## How to submit
 
 1. Click **Use this template** → **Create a new repository**, and make it **public**. Any name is fine.

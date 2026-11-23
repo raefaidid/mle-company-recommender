@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from catalogue import Catalogue
+from company_recommender.storage.catalogue import Catalogue
 
 
 def create_app(catalogue: Catalogue) -> FastAPI:

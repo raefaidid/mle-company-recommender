@@ -1,8 +1,8 @@
 import asyncio
 from pathlib import Path
 
-from consumer import Ack, Retry
-from consumer_main import settle
+from company_recommender.consumer.handler import Ack, Retry
+from company_recommender.consumer.worker import settle
 
 
 class FakeMessage:
@@ -36,7 +36,7 @@ def test_retry_requeues_without_acking():
 
 
 def test_entrypoints_are_importable():
-    from panel_main import main as serve
+    from company_recommender.panel.server import main as serve
 
     assert callable(serve)
 

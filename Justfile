@@ -20,8 +20,8 @@ publish:
 
 # Consume company-events until interrupted.
 consume:
-    uv run python -m consumer_main
+    uv run python -m company_recommender.consumer.worker
 
 # Serve the similar-companies panel on http://127.0.0.1:8000.
 serve:
-    uv run python -m panel_main
+    uv run python -m company_recommender.panel.server

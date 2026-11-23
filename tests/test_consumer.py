@@ -2,10 +2,10 @@ from datetime import datetime, timezone
 
 import pytest
 
-from catalogue import Catalogue
-from consumer import Ack, Consumer, Retry
-from embedder import FastEmbedder
-from quarantine import Quarantine
+from company_recommender.consumer.handler import Ack, Consumer, Retry
+from company_recommender.embeddings.embedder import FastEmbedder
+from company_recommender.storage.catalogue import Catalogue
+from company_recommender.storage.quarantine import Quarantine
 
 DSN = "postgresql://postgres:postgres@localhost:5432/companies"
 SCHEMA = "test_consumer"

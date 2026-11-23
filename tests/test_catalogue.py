@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
-from catalogue import Catalogue
-from intake import Company
+from company_recommender.intake.models import Company
+from company_recommender.storage.catalogue import Catalogue
 
 
 def _vector(*values: float) -> list[float]:
