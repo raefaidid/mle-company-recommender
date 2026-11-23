@@ -21,6 +21,13 @@ Feature: Consumer
       | {"type": "company-upserted", "registrationNumber": "SYN-000175", "updatedAt": "2026-08-14T09:17:46+08:00"} | data is not an object |
       | {"type": "company-upserted", "registrationNumber": "SYN-000737", "updatedAt": "2026-08-14T11:05:08+08:00", "data": "companyName=Foo; state=Perak"} | data is not an object |
 
+  Scenario: An unparseable updatedAt fails loudly
+    Given a company-upserted message for "SYN-000001"
+      And updatedAt is "not a timestamp"
+    When the consumer handles the message
+    Then the consumer raises
+      And nothing is written to quarantine
+
   Scenario: A store outage is not acknowledged and not quarantined
     Given a company-upserted message for "SYN-001777"
       And the catalogue cannot be reached

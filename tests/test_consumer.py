@@ -211,6 +211,21 @@ def test_permanent_junk_is_quarantined_and_acknowledged(
         assert catalogue.get(registration) is None
 
 
+def test_unparseable_updated_at_fails_loudly(
+    consumer: Consumer, catalogue: Catalogue, quarantine: Quarantine
+):
+    raw = (
+        b'{"type": "company-upserted", "registrationNumber": "SYN-000001", '
+        b'"updatedAt": "not a timestamp", "data": {"companyName": "Broken Time"}}'
+    )
+
+    with pytest.raises(ValueError):
+        consumer.handle(raw)
+
+    assert catalogue.get("SYN-000001") is None
+    assert quarantine.matching(raw) == []
+
+
 def test_store_outage_is_not_acknowledged_and_not_quarantined(
     consumer: Consumer,
     catalogue: Catalogue,
