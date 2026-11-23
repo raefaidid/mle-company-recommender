@@ -23,17 +23,16 @@ class StoredCompany:
     state: str | None
     status: str
     source_updated_at: datetime
+    created_at: datetime
+    updated_at: datetime
     embedding: list[float] | None
 
 
 class Catalogue:
-    def __init__(self, dsn: str, schema: str = "public", dimensions: int = 2) -> None:
+    def __init__(self, dsn: str, schema: str = "public") -> None:
         if not schema.isidentifier():
             raise ValueError(schema)
-        if not isinstance(dimensions, int) or dimensions < 1:
-            raise ValueError(dimensions)
         self._schema = schema
-        self._dimensions = dimensions
         self._conn = psycopg.connect(dsn, autocommit=True)
         self._ensure()
 
@@ -55,6 +54,7 @@ class Catalogue:
                     state = EXCLUDED.state,
                     status = EXCLUDED.status,
                     source_updated_at = EXCLUDED.source_updated_at,
+                    updated_at = now(),
                     embedding = EXCLUDED.embedding
                 WHERE EXCLUDED.source_updated_at > {}.companies.source_updated_at
                 """
@@ -75,7 +75,7 @@ class Catalogue:
             sql.SQL(
                 """
                 SELECT registration_number, company_name, industry, state, status,
-                       source_updated_at, embedding::text
+                       source_updated_at, created_at, updated_at, embedding::text
                 FROM {}.companies
                 WHERE registration_number = %s
                 """
@@ -91,7 +91,9 @@ class Catalogue:
             state=row[3],
             status=row[4],
             source_updated_at=row[5],
-            embedding=_parse_vector(row[6]),
+            created_at=row[6],
+            updated_at=row[7],
+            embedding=_parse_vector(row[8]),
         )
 
     def similar(self, registration_number: str) -> list[Card]:
@@ -137,10 +139,12 @@ class Catalogue:
                     state text,
                     status text NOT NULL,
                     source_updated_at timestamptz NOT NULL,
-                    embedding vector({})
+                    created_at timestamptz NOT NULL DEFAULT now(),
+                    updated_at timestamptz NOT NULL DEFAULT now(),
+                    embedding vector(384)
                 )
                 """
-            ).format(sql.Identifier(self._schema), sql.Literal(self._dimensions))
+            ).format(sql.Identifier(self._schema))
         )
 
 

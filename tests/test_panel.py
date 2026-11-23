@@ -7,6 +7,10 @@ from intake import Company
 from panel import create_app
 
 
+def _vector(*values: float) -> list[float]:
+    return [*values, *([0.0] * (384 - len(values)))]
+
+
 def _company(registration_number: str, name: str, industry: str, state: str) -> Company:
     return Company(
         registration_number=registration_number,
@@ -19,9 +23,9 @@ def _company(registration_number: str, name: str, industry: str, state: str) -> 
 
 
 def test_portal_gets_card_fields_nearest_first(catalogue: Catalogue):
-    catalogue.upsert(_company("SYN-000001", "Anchor Mills", "Manufacturing", "Selangor"), [1, 0])
-    catalogue.upsert(_company("SYN-000002", "Near Mill", "Manufacturing", "Johor"), [0.9, 0.1])
-    catalogue.upsert(_company("SYN-000003", "Far Haulage", "Logistics", "Sabah"), [0, 1])
+    catalogue.upsert(_company("SYN-000001", "Anchor Mills", "Manufacturing", "Selangor"), _vector(1, 0))
+    catalogue.upsert(_company("SYN-000002", "Near Mill", "Manufacturing", "Johor"), _vector(0.9, 0.1))
+    catalogue.upsert(_company("SYN-000003", "Far Haulage", "Logistics", "Sabah"), _vector(0, 1))
 
     response = TestClient(create_app(catalogue)).get("/companies/SYN-000001/similar")
 

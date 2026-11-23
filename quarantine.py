@@ -54,7 +54,7 @@ class Quarantine:
                     id bigserial PRIMARY KEY,
                     raw bytea NOT NULL,
                     reason text NOT NULL,
-                    quarantined_at timestamptz NOT NULL DEFAULT now()
+                    created_at timestamptz NOT NULL DEFAULT now()
                 )
                 """
             ).format(sql.Identifier(self._schema))

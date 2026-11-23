@@ -34,6 +34,14 @@ Feature: Consumer
     Then both messages are acknowledged
       And the stored name is "New Name"
 
+  Scenario: The arrival time is kept when a newer message updates the company
+    Given a company-upserted message for "SYN-000123" at "2026-08-14T09:00:00+08:00"
+      And a company-upserted message for "SYN-000123" at "2026-08-14T10:00:00+08:00"
+    When the consumer handles the older message and then the newer message
+    Then both messages are acknowledged
+      And the arrival time is the time of the first message
+      And the update time is not earlier than the arrival time
+
   Scenario: A company with no description is stored and not embedded
     Given a company-upserted message for "SYN-000200"
       And the name is "No Description Sdn. Bhd."

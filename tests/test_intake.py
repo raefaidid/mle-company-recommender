@@ -1,6 +1,12 @@
+import json
 from datetime import datetime, timezone
+from pathlib import Path
 
-from intake import Company, Rejection, interpret
+import pytest
+
+from intake import Company, Rejection, _source_time, interpret
+
+FEED = Path(__file__).resolve().parent.parent / "data" / "feed.jsonl"
 
 UPSERT = (
     b'{"type": "company-upserted", "registrationNumber": "SYN-001777", '
@@ -43,6 +49,43 @@ def test_timestamp_with_no_offset_is_read_as_malaysia_time():
 
     assert isinstance(result, Company)
     assert result.source_updated_at == datetime(2026, 8, 14, 1, 6, 19, tzinfo=timezone.utc)
+
+
+def test_every_updated_at_in_the_feed_parses():
+    unparsable = []
+    for line in FEED.read_text(encoding="utf-8").splitlines():
+        try:
+            message = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(message, dict) or "updatedAt" not in message:
+            continue
+        try:
+            _source_time(message["updatedAt"])
+        except Exception as error:
+            unparsable.append((message.get("registrationNumber"), message["updatedAt"], error))
+
+    assert unparsable == []
+
+
+def test_unparseable_updated_at_raises():
+    raw = (
+        b'{"type": "company-upserted", "registrationNumber": "SYN-000001", '
+        b'"updatedAt": "not a timestamp", "data": {"companyName": "Broken Time"}}'
+    )
+
+    with pytest.raises(ValueError):
+        interpret(raw)
+
+
+def test_null_updated_at_raises():
+    raw = (
+        b'{"type": "company-upserted", "registrationNumber": "SYN-000001", '
+        b'"updatedAt": null, "data": {"companyName": "Broken Time"}}'
+    )
+
+    with pytest.raises(TypeError):
+        interpret(raw)
 
 
 def test_strike_off_names_the_company_and_nothing_else():

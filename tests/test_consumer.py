@@ -26,7 +26,7 @@ def embedder():
 
 @pytest.fixture
 def catalogue():
-    stored = Catalogue(DSN, schema=SCHEMA, dimensions=384)
+    stored = Catalogue(DSN, schema=SCHEMA)
     yield stored
     stored.close()
     import psycopg
@@ -109,10 +109,38 @@ def test_later_source_time_wins_even_if_it_arrives_first(consumer: Consumer, cat
     )
 
     assert isinstance(consumer.handle(newer), Ack)
+    first = catalogue.get("SYN-000099")
+    assert first is not None
     assert isinstance(consumer.handle(older), Ack)
     stored = catalogue.get("SYN-000099")
     assert stored is not None
     assert stored.company_name == "New Name"
+    assert stored.created_at == first.created_at
+    assert stored.updated_at == first.updated_at
+
+
+def test_arrival_time_is_kept_and_update_time_moves(consumer: Consumer, catalogue: Catalogue):
+    older = (
+        b'{"type": "company-upserted", "registrationNumber": "SYN-000123", '
+        b'"updatedAt": "2026-08-14T09:00:00+08:00", "data": {"companyName": "First Name", '
+        b'"natureOfBusiness": "Retail of stationery", "state": "Perak", "industry": "Retail"}}'
+    )
+    newer = (
+        b'{"type": "company-upserted", "registrationNumber": "SYN-000123", '
+        b'"updatedAt": "2026-08-14T10:00:00+08:00", "data": {"companyName": "Second Name", '
+        b'"natureOfBusiness": "Retail of stationery", "state": "Perak", "industry": "Retail"}}'
+    )
+
+    assert isinstance(consumer.handle(older), Ack)
+    arrived = catalogue.get("SYN-000123")
+    assert arrived is not None
+    assert arrived.created_at == arrived.updated_at
+
+    assert isinstance(consumer.handle(newer), Ack)
+    updated = catalogue.get("SYN-000123")
+    assert updated is not None
+    assert updated.created_at == arrived.created_at
+    assert updated.updated_at >= arrived.updated_at
 
 
 def test_company_with_no_description_is_stored_and_not_embedded(
