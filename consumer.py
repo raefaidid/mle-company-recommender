@@ -1,3 +1,4 @@
+import hashlib
 from dataclasses import dataclass
 
 from catalogue import Catalogue
@@ -39,7 +40,7 @@ class Consumer:
         try:
             if company.embedding_text:
                 vector = self._embedder.embed(company.embedding_text)
-            self._catalogue.upsert(company, vector)
+            self._catalogue.upsert(company, vector, hashlib.sha256(raw).hexdigest())
         except Exception:
             return Retry()
         return Ack()

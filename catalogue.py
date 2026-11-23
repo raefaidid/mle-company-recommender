@@ -39,26 +39,49 @@ class Catalogue:
     def close(self) -> None:
         self._conn.close()
 
-    def upsert(self, company: Company, vector: list[float] | None) -> None:
+    def upsert(
+        self,
+        company: Company,
+        vector: list[float] | None,
+        message_hash: str = "",
+    ) -> None:
         self._conn.execute(
             sql.SQL(
                 """
                 INSERT INTO {}.companies (
                     registration_number, company_name, industry, state, status,
-                    source_updated_at, embedding
+                    source_updated_at, message_hash, embedding
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (registration_number) DO UPDATE SET
                     company_name = EXCLUDED.company_name,
                     industry = EXCLUDED.industry,
                     state = EXCLUDED.state,
                     status = EXCLUDED.status,
                     source_updated_at = EXCLUDED.source_updated_at,
+                    message_hash = EXCLUDED.message_hash,
                     updated_at = now(),
                     embedding = EXCLUDED.embedding
                 WHERE EXCLUDED.source_updated_at > {}.companies.source_updated_at
+                   OR (
+                       EXCLUDED.source_updated_at = {}.companies.source_updated_at
+                       AND (
+                           (EXCLUDED.status = 'struck_off' AND {}.companies.status <> 'struck_off')
+                           OR (
+                               EXCLUDED.status = {}.companies.status
+                               AND EXCLUDED.message_hash > {}.companies.message_hash
+                           )
+                       )
+                   )
                 """
-            ).format(sql.Identifier(self._schema), sql.Identifier(self._schema)),
+            ).format(
+                sql.Identifier(self._schema),
+                sql.Identifier(self._schema),
+                sql.Identifier(self._schema),
+                sql.Identifier(self._schema),
+                sql.Identifier(self._schema),
+                sql.Identifier(self._schema),
+            ),
             (
                 company.registration_number,
                 company.company_name,
@@ -66,6 +89,7 @@ class Catalogue:
                 company.state,
                 company.status,
                 company.source_updated_at,
+                message_hash,
                 None if vector is None else _vector(vector),
             ),
         )
@@ -141,6 +165,7 @@ class Catalogue:
                     source_updated_at timestamptz NOT NULL,
                     created_at timestamptz NOT NULL DEFAULT now(),
                     updated_at timestamptz NOT NULL DEFAULT now(),
+                    message_hash text NOT NULL DEFAULT '',
                     embedding vector(384)
                 )
                 """
