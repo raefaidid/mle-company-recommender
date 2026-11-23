@@ -19,11 +19,9 @@
 
 ## Second MVP
 
-Testing a different embedding model is deliberately after the first MVP.
-
-| # | Ticket | Seam | Status |
-|---|--------|------|--------|
-| 13 | Swap to a multilingual embedding model | embedder | Backlog |
+| # | Ticket | Seam | Status | Test |
+|---|--------|------|--------|------|
+| 13 | [Swap to a multilingual embedding model](embedder/13-multilingual-embedding-model.md) | embedder | Done | `tests/test_embedder.py::test_malay_description_is_closer_to_its_english_translation` |
 
 Deferred, not ticketed yet: batch embedding, HNSW tuning, full state
 normalisation.

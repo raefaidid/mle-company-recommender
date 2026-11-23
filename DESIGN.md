@@ -38,8 +38,9 @@ AMQP `message_id`, so the message identity is consistent end to end.
 
 ### Embeddings
 
-The model is `BAAI/bge-small-en-v1.5`: 384 dimensions, CPU-only, through
-`fastembed`. The embedding column is fixed at `vector(384)`.
+The model is
+`sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`: 384 dimensions,
+CPU-only, through `fastembed`. The embedding column is fixed at `vector(384)`.
 
 The text to embed is chosen in `intake.py`:
 
@@ -55,11 +56,12 @@ plastic packaging, furniture, precision machining). Using only the bucket would
 make all 41 identical to the vector search. The fallback exists because a
 description-less company is otherwise never recommended.
 
-Limitation: the feed's descriptions are mixed English and Malay (at least 30%
-of them are Malay by a simple function-word check), and `bge-small-en-v1.5` is
-English-only. Ticket 13 replaces it with a multilingual 384-dimension model
-without changing the schema. Malay quality is deliberately deferred to that
-ticket so the first MVP stays small.
+The feed's descriptions are mixed English and Malay (at least 30% of them are
+Malay by a simple function-word check). The first MVP used
+`BAAI/bge-small-en-v1.5`, but the English-only model put a Malay description
+closer to an unrelated English text than to its own English translation. The
+multilingual model fixes that without changing the schema, and
+`tests/test_embedder.py` checks the translation pair.
 
 ### Recommendations
 
@@ -154,7 +156,8 @@ Four cards, nearest first, self excluded, active only.
 
 ## What's left
 
-- Ticket 13: multilingual embedding model and a small Malay/English evaluation.
+- A broader Malay/English evaluation (the current test checks one translation
+  pair) and, if needed, a domain-tuned model.
 - Full state normalisation and aliases.
 - A deterministic tie-break for identical vectors (for example, registration
   number) so equal-distance cards have a stable order.
