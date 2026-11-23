@@ -143,23 +143,32 @@ def test_arrival_time_is_kept_and_update_time_moves(consumer: Consumer, catalogu
     assert updated.updated_at >= arrived.updated_at
 
 
-def test_company_with_no_description_is_stored_and_not_embedded(
+def test_empty_nature_of_business_is_embedded_from_industry_and_state(
     consumer: Consumer, catalogue: Catalogue
 ):
-    raw = (
+    empty = (
         b'{"type": "company-upserted", "registrationNumber": "SYN-000200", '
         b'"updatedAt": "2026-08-14T09:00:00+08:00", "data": {"companyName": '
-        b'"No Description Sdn. Bhd.", "natureOfBusiness": "", "state": "Kedah", '
+        b'"No Description Sdn. Bhd.", "natureOfBusiness": "", "state": "kedah", '
         b'"industry": "Retail"}}'
     )
+    described = (
+        b'{"type": "company-upserted", "registrationNumber": "SYN-000201", '
+        b'"updatedAt": "2026-08-14T09:00:00+08:00", "data": {"companyName": '
+        b'"Described Twin Sdn. Bhd.", "natureOfBusiness": "Retail in Kedah", '
+        b'"state": "Kedah", "industry": "Retail"}}'
+    )
 
-    decision = consumer.handle(raw)
+    assert isinstance(consumer.handle(empty), Ack)
+    assert isinstance(consumer.handle(described), Ack)
 
-    assert isinstance(decision, Ack)
     stored = catalogue.get("SYN-000200")
+    twin = catalogue.get("SYN-000201")
     assert stored is not None
+    assert twin is not None
     assert stored.company_name == "No Description Sdn. Bhd."
-    assert stored.embedding is None
+    assert stored.embedding is not None
+    assert stored.embedding == twin.embedding
 
 
 @pytest.mark.parametrize(

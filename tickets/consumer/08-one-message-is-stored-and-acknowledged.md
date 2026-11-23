@@ -42,15 +42,6 @@ Feature: Consumer
       And the arrival time is the time of the first message
       And the update time is not earlier than the arrival time
 
-  Scenario: A company with no description is stored and not embedded
-    Given a company-upserted message for "SYN-000200"
-      And the name is "No Description Sdn. Bhd."
-      And the nature of business is empty
-    When the consumer handles the message
-    Then the message is acknowledged
-      And the company is stored
-      And it has no embedding
-
   Scenario: A strike-off is stored and acknowledged
     Given a company-struck-off message for "SYN-001748"
       And updatedAt is "2026-08-14T16:00:33+08:00"
@@ -59,3 +50,7 @@ Feature: Consumer
       And the company is stored as struck off
       And it is not returned as a similar company
 ```
+
+The empty-description case moved to ticket 10, which embeds the industry and
+state instead of leaving the company without a vector.
+

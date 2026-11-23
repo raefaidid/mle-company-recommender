@@ -37,8 +37,8 @@ class Consumer:
             return Ack()
         vector = None
         try:
-            if company.nature_of_business:
-                vector = self._embedder.embed(company.nature_of_business)
+            if company.embedding_text:
+                vector = self._embedder.embed(company.embedding_text)
             self._catalogue.upsert(company, vector)
         except Exception:
             return Retry()

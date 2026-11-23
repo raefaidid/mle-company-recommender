@@ -14,6 +14,7 @@ class Company:
     source_updated_at: datetime
     status: str
     nature_of_business: str | None = None
+    embedding_text: str | None = None
 
 
 @dataclass(frozen=True)
@@ -25,6 +26,15 @@ def _description(value: object) -> str | None:
     if not isinstance(value, str) or not value.strip():
         return None
     return value
+
+
+def _fallback_text(industry: object, state: object) -> str | None:
+    parts = []
+    if isinstance(industry, str) and industry.strip():
+        parts.append(" ".join(industry.split()))
+    if isinstance(state, str) and state.strip():
+        parts.append(" ".join(state.split()).title())
+    return " in ".join(parts) if parts else None
 
 
 def _source_time(updated_at: str | int) -> datetime:
@@ -62,12 +72,16 @@ def interpret(raw: bytes) -> Company | Rejection:
     data = message.get("data")
     if not isinstance(data, dict):
         return Rejection("data is not an object")
+    industry = data.get("industry")
+    state = data.get("state")
+    description = _description(data.get("natureOfBusiness"))
     return Company(
         registration_number=message["registrationNumber"],
         company_name=data["companyName"],
-        industry=data["industry"],
-        state=data["state"],
+        industry=industry,
+        state=state,
         source_updated_at=source_updated_at,
         status="active",
-        nature_of_business=_description(data.get("natureOfBusiness")),
+        nature_of_business=description,
+        embedding_text=description or _fallback_text(industry, state),
     )

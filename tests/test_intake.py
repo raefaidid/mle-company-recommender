@@ -27,6 +27,7 @@ def test_company_upsert_becomes_a_company_record():
     assert result.state == "Negeri Sembilan"
     assert result.source_updated_at == datetime(2026, 8, 14, 1, 0, tzinfo=timezone.utc)
     assert result.status == "active"
+    assert result.embedding_text == "Production of rubber gloves for export"
 
 
 def test_null_message_is_rejected_without_raising():
@@ -88,6 +89,35 @@ def test_null_updated_at_raises():
         interpret(raw)
 
 
+def test_empty_description_falls_back_to_industry_and_state():
+    raw = (
+        b'{"type": "company-upserted", "registrationNumber": "SYN-000200", '
+        b'"updatedAt": "2026-08-14T09:00:00+08:00", "data": {"companyName": '
+        b'"No Description Sdn. Bhd.", "natureOfBusiness": "", "state": "kedah", '
+        b'"industry": "Retail"}}'
+    )
+
+    result = interpret(raw)
+
+    assert isinstance(result, Company)
+    assert result.nature_of_business is None
+    assert result.embedding_text == "Retail in Kedah"
+
+
+def test_empty_description_with_no_state_falls_back_to_industry():
+    raw = (
+        b'{"type": "company-upserted", "registrationNumber": "SYN-000201", '
+        b'"updatedAt": "2026-08-14T09:00:00+08:00", "data": {"companyName": '
+        b'"No State Sdn. Bhd.", "natureOfBusiness": "", "industry": "Retail"}}'
+    )
+
+    result = interpret(raw)
+
+    assert isinstance(result, Company)
+    assert result.nature_of_business is None
+    assert result.embedding_text == "Retail"
+
+
 def test_strike_off_names_the_company_and_nothing_else():
     raw = (
         b'{"type": "company-struck-off", "registrationNumber": "SYN-001748", '
@@ -103,4 +133,5 @@ def test_strike_off_names_the_company_and_nothing_else():
     assert result.industry is None
     assert result.state is None
     assert result.nature_of_business is None
+    assert result.embedding_text is None
     assert result.source_updated_at == datetime(2026, 8, 14, 8, 0, 33, tzinfo=timezone.utc)
