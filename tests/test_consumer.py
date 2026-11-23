@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 import pytest
 
 from catalogue import Catalogue
-from consumer import Ack, Consumer
+from consumer import Ack, Consumer, Retry
 from embedder import FastEmbedder
 from quarantine import Quarantine
 
@@ -160,6 +160,68 @@ def test_company_with_no_description_is_stored_and_not_embedded(
     assert stored is not None
     assert stored.company_name == "No Description Sdn. Bhd."
     assert stored.embedding is None
+
+
+@pytest.mark.parametrize(
+    ("raw", "reason", "registration"),
+    [
+        (b"null", "body was null", None),
+        (b"{", "invalid JSON", None),
+        (
+            b'{"type": "company-upserted", "updatedAt": "2026-08-14T09:20:07+08:00", '
+            b'"data": {"companyName": "No Reg Sdn. Bhd."}}',
+            "missing registration number",
+            None,
+        ),
+        (
+            b'{"type": "company-upserted", "registrationNumber": "SYN-000829", '
+            b'"data": {"companyName": "Unknown"}}',
+            "missing updatedAt",
+            "SYN-000829",
+        ),
+        (
+            b'{"type": "company-upserted", "registrationNumber": "SYN-000175", '
+            b'"updatedAt": "2026-08-14T09:17:46+08:00"}',
+            "data is not an object",
+            "SYN-000175",
+        ),
+        (
+            b'{"type": "company-upserted", "registrationNumber": "SYN-000737", '
+            b'"updatedAt": "2026-08-14T11:05:08+08:00", '
+            b'"data": "companyName=Foo; state=Perak"}',
+            "data is not an object",
+            "SYN-000737",
+        ),
+    ],
+)
+def test_permanent_junk_is_quarantined_and_acknowledged(
+    consumer: Consumer,
+    catalogue: Catalogue,
+    quarantine: Quarantine,
+    raw: bytes,
+    reason: str,
+    registration: str | None,
+):
+    decision = consumer.handle(raw)
+
+    assert isinstance(decision, Ack)
+    records = quarantine.matching(raw)
+    assert [record.reason for record in records] == [reason]
+    if registration is not None:
+        assert catalogue.get(registration) is None
+
+
+def test_store_outage_is_not_acknowledged_and_not_quarantined(
+    consumer: Consumer,
+    catalogue: Catalogue,
+    quarantine: Quarantine,
+):
+    catalogue.close()
+
+    decision = consumer.handle(DESCRIBED)
+
+    assert isinstance(decision, Retry)
+    assert quarantine.all() == []
 
 
 def test_strike_off_is_stored_and_acknowledged(consumer: Consumer, catalogue: Catalogue):

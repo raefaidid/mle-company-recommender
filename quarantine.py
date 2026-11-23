@@ -32,6 +32,18 @@ class Quarantine:
             (raw, reason),
         )
 
+    def all(self) -> list[Quarantined]:
+        rows = self._conn.execute(
+            sql.SQL(
+                """
+                SELECT raw, reason
+                FROM {}.quarantined_messages
+                ORDER BY id
+                """
+            ).format(sql.Identifier(self._schema))
+        ).fetchall()
+        return [Quarantined(*row) for row in rows]
+
     def matching(self, raw: bytes) -> list[Quarantined]:
         rows = self._conn.execute(
             sql.SQL(

@@ -37,9 +37,18 @@ def _source_time(updated_at: str | int) -> datetime:
 
 
 def interpret(raw: bytes) -> Company | Rejection:
-    message = json.loads(raw)
+    try:
+        message = json.loads(raw)
+    except json.JSONDecodeError:
+        return Rejection("invalid JSON")
     if message is None:
         return Rejection("body was null")
+    if not isinstance(message, dict):
+        return Rejection("body is not an object")
+    if "registrationNumber" not in message:
+        return Rejection("missing registration number")
+    if "updatedAt" not in message:
+        return Rejection("missing updatedAt")
     source_updated_at = _source_time(message["updatedAt"])
     if message["type"] == "company-struck-off":
         return Company(
@@ -50,7 +59,9 @@ def interpret(raw: bytes) -> Company | Rejection:
             source_updated_at=source_updated_at,
             status="struck_off",
         )
-    data = message["data"]
+    data = message.get("data")
+    if not isinstance(data, dict):
+        return Rejection("data is not an object")
     return Company(
         registration_number=message["registrationNumber"],
         company_name=data["companyName"],
