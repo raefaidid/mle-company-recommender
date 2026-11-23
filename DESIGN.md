@@ -7,9 +7,28 @@ producer replays `data/feed.jsonl` onto the durable `company-events` queue; the
 consumer stores each company in Postgres with a pgvector embedding; the FastAPI
 panel returns the nearest active companies for a registration number.
 
+```mermaid
+flowchart LR
+    Feed["data/feed.jsonl"] --> Producer["producer<br/>publish.py"]
+    Producer -->|"company-events<br/>durable queue"| Queue[("RabbitMQ")]
+
+    subgraph Service["Service"]
+        Consumer["consumer<br/>handler + worker"]
+        Embedder["fastembed<br/>multilingual MiniLM"]
+        Panel["panel<br/>FastAPI"]
+        Consumer -->|"description or<br/>industry + state"| Embedder
+    end
+
+    Queue --> Consumer
+    Consumer -->|"upsert latest-wins"| DB[("Postgres<br/>companies + pgvector")]
+    Consumer -->|"permanent junk"| Quarantine[("Postgres<br/>quarantined_messages")]
+    Panel -->|"cosine nearest neighbours"| DB
+    Portal["OneCredit portal"] -->|"GET /companies/{id}/similar"| Panel
 ```
-producer -> RabbitMQ company-events -> consumer -> Postgres + pgvector -> panel
-```
+
+The consumer acknowledges stored messages, requeues transient failures, and
+quarantines permanent junk; an unparseable `updatedAt` escapes the handler so
+the worker stops loudly.
 
 ## Decisions
 
