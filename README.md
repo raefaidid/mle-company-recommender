@@ -137,6 +137,40 @@ http://localhost:15672 (user `guest`, password `guest`). If those ports are take
 `just publish` sends the whole feed every time you run it. To start again from an empty queue and database, run
 `just down` and then `just up`.
 
+## Run this solution
+
+The pipeline has three moving parts: the feed producer, a consumer that stores
+and embeds each message, and the HTTP panel.
+
+```bash
+just up        # Postgres + pgvector and RabbitMQ
+just publish   # replay data/feed.jsonl onto company-events
+just consume   # terminal 1: store and embed messages until Ctrl-C
+just serve     # terminal 2: http://127.0.0.1:8000
+```
+
+Ask for a company that is in the feed:
+
+```bash
+curl http://127.0.0.1:8000/companies/SYN-001777/similar
+```
+
+The consumer reads `company-events` one message at a time, acknowledges stored
+messages, and requeues transient failures after a short delay. Permanent junk is
+quarantined and acknowledged. An unparseable `updatedAt` raises on purpose, so
+the consumer stops with a traceback instead of silently dropping the message.
+
+The tests need Postgres:
+
+```bash
+uv run pytest
+```
+
+Environment variables: `POSTGRES_DSN` (default
+`postgresql://postgres:postgres@localhost:5432/companies`), `RABBITMQ_URL`
+(default `amqp://guest:guest@localhost:5672/`), `PANEL_HOST`, `PANEL_PORT`, and
+`RETRY_DELAY_SECONDS`.
+
 ## What's already here
 
 ```

@@ -17,3 +17,11 @@ down:
 # Replay the registry feed onto the company-events queue.
 publish:
     uv run python -m producer.publish
+
+# Consume company-events until interrupted.
+consume:
+    uv run python -m consumer_main
+
+# Serve the similar-companies panel on http://127.0.0.1:8000.
+serve:
+    uv run python -m panel_main

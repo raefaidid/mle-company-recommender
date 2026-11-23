@@ -15,14 +15,7 @@
 | 09 | [Permanent junk is quarantined and acknowledged](consumer/09-permanent-junk-is-quarantined-and-acknowledged.md) | consumer | Done | `tests/test_consumer.py::test_permanent_junk_is_quarantined_and_acknowledged`<br>`test_unparseable_updated_at_fails_loudly`<br>`test_store_outage_is_not_acknowledged_and_not_quarantined` |
 | 10 | [Industry fallback when `natureOfBusiness` is empty](intake/10-industry-fallback-when-nature-of-business-is-empty.md) | intake | Done | `tests/test_intake.py::test_empty_description_falls_back_to_industry_and_state`<br>`tests/test_intake.py::test_empty_description_with_no_state_falls_back_to_industry`<br>`tests/test_consumer.py::test_empty_nature_of_business_is_embedded_from_industry_and_state` |
 | 11 | [Equal-timestamp tie-break: strike-off first, then hash](catalogue/11-equal-timestamp-tie-break.md) | catalogue | Done | `tests/test_catalogue.py::test_strike_off_wins_when_timestamps_match`<br>`test_an_equal_timestamp_upsert_does_not_revive_a_strike_off`<br>`test_equal_timestamp_upserts_pick_the_greater_hash` |
-
-## Next
-
-Row 12 has no ticket file yet. Add the file when the ticket is picked up.
-
-| # | Ticket | Seam | Status |
-|---|--------|------|--------|
-| 12 | `DESIGN.md` and README run instructions | docs | Backlog |
+| 12 | [Design record, entrypoints, and run instructions](docs/12-design-and-run-instructions.md) | docs | Done | `tests/test_entrypoints.py::test_ack_settles_the_message`<br>`test_retry_requeues_without_acking`<br>`test_entrypoints_are_importable`<br>`test_readme_documents_the_pipeline` |
 
 ## Second MVP
 
