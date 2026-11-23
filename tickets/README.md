@@ -11,6 +11,7 @@
 | 05 | [The panel order comes from the vectors](catalogue/05-the-panel-order-comes-from-the-vectors.md) | catalogue | Done | `tests/test_catalogue.py::test_similar_companies_are_the_nearest_stored_cards` |
 | 06 | [A dead company is not a recommendation](catalogue/06-a-dead-company-is-not-a-recommendation.md) | catalogue | Done | `tests/test_catalogue.py::test_struck_off_company_is_stored_and_not_recommended` |
 | 07 | [The portal can render the panel](panel/07-the-portal-can-render-the-panel.md) | panel | Done | `tests/test_panel.py::test_portal_gets_card_fields_nearest_first` |
+| 08 | [One message is stored and acknowledged](consumer/08-one-message-is-stored-and-acknowledged.md) | consumer | Done | `tests/test_consumer.py::test_described_company_is_stored_and_acknowledged`<br>`test_epoch_timestamp_is_stored_as_utc`<br>`test_later_source_time_wins_even_if_it_arrives_first`<br>`test_company_with_no_description_is_stored_and_not_embedded`<br>`test_strike_off_is_stored_and_acknowledged` |
 
 ## Next
 
@@ -18,7 +19,6 @@ Rows 09–12 have no ticket file yet. Add the file when the ticket is picked up.
 
 | # | Ticket | Seam | Status |
 |---|--------|------|--------|
-| 08 | [One message is stored and acknowledged](consumer/08-one-message-is-stored-and-acknowledged.md) | consumer | Next |
 | 09 | Quarantine permanent junk instead of retrying it | consumer | Backlog |
 | 10 | Industry fallback when `natureOfBusiness` is empty | intake | Backlog |
 | 11 | Equal-timestamp tie-break: strike-off first, then hash | catalogue | Backlog |

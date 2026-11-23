@@ -21,7 +21,15 @@ class Rejection:
     reason: str
 
 
-def _source_time(updated_at: str) -> datetime:
+def _description(value: object) -> str | None:
+    if not isinstance(value, str) or not value.strip():
+        return None
+    return value
+
+
+def _source_time(updated_at: str | int) -> datetime:
+    if isinstance(updated_at, int):
+        return datetime.fromtimestamp(updated_at / 1000, timezone.utc)
     parsed = datetime.fromisoformat(updated_at)
     if parsed.tzinfo is None:
         parsed = parsed.replace(tzinfo=MALAYSIA)
@@ -50,4 +58,5 @@ def interpret(raw: bytes) -> Company | Rejection:
         state=data["state"],
         source_updated_at=source_updated_at,
         status="active",
+        nature_of_business=_description(data.get("natureOfBusiness")),
     )
